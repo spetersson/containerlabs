@@ -1,0 +1,61 @@
+---
+name: nokia-srl-ip-fabric
+topology:
+  nodes:
+    leaf11:
+      kind: nokia_srlinux
+      image: ghcr.io/nokia/srlinux
+      startup-config: network_config/leaf11.cli
+    leaf12:
+      kind: nokia_srlinux
+      image: ghcr.io/nokia/srlinux
+      startup-config: network_config/leaf12.cli
+    leaf21:
+      kind: nokia_srlinux
+      image: ghcr.io/nokia/srlinux
+      startup-config: network_config/leaf21.cli
+    leaf22:
+      kind: nokia_srlinux
+      image: ghcr.io/nokia/srlinux
+      startup-config: network_config/leaf22.cli
+    spine11:
+      kind: nokia_srlinux
+      image: ghcr.io/nokia/srlinux
+      startup-config: network_config/spine11.cli
+    spine12:
+      kind: nokia_srlinux
+      image: ghcr.io/nokia/srlinux
+      startup-config: network_config/spine12.cli
+    dns1:
+      kind: generic_vm
+      image: vrnetlab/canonical_ubuntu:jammy
+    dns2:
+      kind: generic_vm
+      image: vrnetlab/canonical_ubuntu:jammy
+    http1:
+      kind: generic_vm
+      image: vrnetlab/canonical_ubuntu:jammy
+    http2:
+      kind: generic_vm
+      image: vrnetlab/canonical_ubuntu:jammy
+  links:
+    # Leaf 11
+    - endpoints: ["leaf11:ethernet-1/1", "spine11:ethernet-1/1"]
+    - endpoints: ["leaf11:ethernet-1/2", "spine12:ethernet-1/1"]
+    - endpoints: ["leaf11:ethernet-1/3", "dns1:eth1"]
+    - endpoints: ["leaf11:ethernet-1/4", "dns2:eth1"]
+    # Leaf 12
+    - endpoints: ["leaf12:ethernet-1/1", "spine11:ethernet-1/2"]
+    - endpoints: ["leaf12:ethernet-1/2", "spine12:ethernet-1/2"]
+    - endpoints: ["leaf12:ethernet-1/3", "dns1:eth2"]
+    - endpoints: ["leaf12:ethernet-1/4", "dns2:eth2"]
+    # Leaf 21
+    - endpoints: ["leaf21:ethernet-1/1", "spine11:ethernet-1/3"]
+    - endpoints: ["leaf21:ethernet-1/2", "spine12:ethernet-1/3"]
+    - endpoints: ["leaf21:ethernet-1/3", "http1:eth1"]
+    - endpoints: ["leaf21:ethernet-1/4", "http2:eth1"]
+    # Leaf 22
+    - endpoints: ["leaf22:ethernet-1/1", "spine11:ethernet-1/4"]
+    - endpoints: ["leaf22:ethernet-1/2", "spine12:ethernet-1/4"]
+    - endpoints: ["leaf22:ethernet-1/3", "http1:eth2"]
+    - endpoints: ["leaf22:ethernet-1/4", "http2:eth2"]

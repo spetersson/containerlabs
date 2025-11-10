@@ -1,0 +1,4 @@
+---
+system_asn: 4200000202
+system_loopback_ipv4: 10.1.2.2/32
+system_loopback_ipv6: 2001:db8::2/128

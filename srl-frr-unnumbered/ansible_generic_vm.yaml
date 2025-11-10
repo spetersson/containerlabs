@@ -1,0 +1,43 @@
+---
+- hosts: generic_vm
+  gather_facts: true
+  become: true
+  vars:
+    frr_version: "10.1"
+  tasks:
+    - name: add ssh_key
+      ansible.posix.authorized_key:
+        user: clab
+        state: present
+        key: "{{ lookup('file', '/home/sp/.ssh/id_rsa.pub') }}"
+    - name: Install packages
+      apt:
+        name:
+          - htop
+          - bmon
+          - lldpd
+        state: present
+        cache_valid_time: 30
+    - name: Download FRR GPG-key
+      get_url:
+        url: https://deb.frrouting.org/frr/keys.gpg
+        dest: /usr/share/keyrings/frrouting.gpg
+      tags:
+        - frr
+        - frr_install
+    - name: Configure apt repo for FRR
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/frrouting.gpg] https://deb.frrouting.org/frr {{ ansible_distribution_release }} frr-{{ frr_version }}"
+        state: present
+        filename: frr
+      tags:
+        - frr
+        - frr_install
+    - name: Install frr
+      apt:
+        name:
+          - frr
+          - frr-pythontools
+      tags:
+        - frr
+        - frr_install
