@@ -60,9 +60,7 @@
         method6: link-local
         method4: link-local
         state: present
-      loop:
-        - "Wired connection 1"
-        - "Wired connection 2"
+      loop: "{{ nm_connection_uplinks }}"
       when: ansible_facts["os_family"] == "RedHat"
       register: nmcli
 
@@ -71,9 +69,7 @@
         type: ethernet
         conn_name: "{{ item }}"
         state: down
-      loop:
-        - "Wired connection 1"
-        - "Wired connection 2"
+      loop: "{{ nm_connection_uplinks }}"
       when: nmcli.changed
 
     - name: Up nmcli interfaces
@@ -81,9 +77,7 @@
         type: ethernet
         conn_name: "{{ item }}"
         state: up
-      loop:
-        - "Wired connection 1"
-        - "Wired connection 2"
+      loop: "{{ nm_connection_uplinks }}"
       when: nmcli.changed
 
   roles:

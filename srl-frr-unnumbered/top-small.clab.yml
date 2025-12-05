@@ -1,0 +1,36 @@
+---
+# Builds smaller topology for limited testing
+name: nokia-srl-ip-fabric
+topology:
+  nodes:
+    leaf11:
+      kind: nokia_srlinux
+      image: ghcr.io/nokia/srlinux
+      startup-config: network_config/leaf11.cli
+    leaf12:
+      kind: nokia_srlinux
+      image: ghcr.io/nokia/srlinux
+      startup-config: network_config/leaf12.cli
+    spine11:
+      kind: nokia_srlinux
+      image: ghcr.io/nokia/srlinux
+      startup-config: network_config/spine11.cli
+    dns1:
+      kind: generic_vm
+      image: vrnetlab/rocky_rocky:9
+      env:
+        QEMU_MEMORY: 2048
+    dns2:
+      kind: generic_vm
+      image: vrnetlab/rocky_rocky:9
+      env:
+        QEMU_MEMORY: 2048
+  links:
+    # Leaf 11
+    - endpoints: ["leaf11:ethernet-1/1", "spine11:ethernet-1/1"]
+    - endpoints: ["leaf11:ethernet-1/3", "dns1:eth1"]
+    - endpoints: ["leaf11:ethernet-1/4", "dns2:eth1"]
+    # Leaf 12
+    - endpoints: ["leaf12:ethernet-1/1", "spine11:ethernet-1/2"]
+    - endpoints: ["leaf12:ethernet-1/3", "dns1:eth2"]
+    - endpoints: ["leaf12:ethernet-1/4", "dns2:eth2"]

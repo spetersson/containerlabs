@@ -51,6 +51,16 @@ set / network-instance default protocols linux export-neighbors true
 set / network-instance default protocols bgp autonomous-system 4200000122
 set / network-instance default protocols bgp router-id 10.0.1.122
 
+set / network-instance default protocols bgp trace-options flag events modifier detail
+set / network-instance default protocols bgp trace-options flag keepalive modifier detail
+set / network-instance default protocols bgp trace-options flag notification modifier detail
+set / network-instance default protocols bgp trace-options flag open modifier detail
+set / network-instance default protocols bgp trace-options flag packets modifier detail
+set / network-instance default protocols bgp trace-options flag route modifier detail
+set / network-instance default protocols bgp trace-options flag socket modifier detail
+set / network-instance default protocols bgp trace-options flag timers modifier detail
+set / network-instance default protocols bgp trace-options flag update modifier detail
+
 set / network-instance default protocols bgp group underlay
 set / network-instance default protocols bgp group underlay export-policy [ system-loopbacks-policy ]
 set / network-instance default protocols bgp group underlay import-policy [ system-loopbacks-policy ]

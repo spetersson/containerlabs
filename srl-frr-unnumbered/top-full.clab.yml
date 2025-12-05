@@ -1,4 +1,5 @@
 ---
+# Builds full topology for full testing
 name: nokia-srl-ip-fabric
 topology:
   nodes:

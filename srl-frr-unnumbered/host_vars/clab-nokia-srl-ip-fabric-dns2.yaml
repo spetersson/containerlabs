@@ -5,3 +5,6 @@ system_loopback_ipv6: 2001:db8::2/128
 frr_system_uplinks:
   - eth1
   - eth2
+nm_connection_uplinks:
+  - "Wired connection 1"
+  - "Wired connection 2"
