@@ -3,41 +3,88 @@
   gather_facts: true
   become: true
   vars:
-    frr_version: "10.1"
-  tasks:
+    # Disable FRR version will install latest stable version of FRR
+    # frr_version: "10.1"
+    frr_branch: "10"
+  pre_tasks:
+    - name: debug ansible_os_family
+      debug:
+        var: ansible_os_family
+
     - name: add ssh_key
       ansible.posix.authorized_key:
         user: clab
         state: present
         key: "{{ lookup('file', '/home/sp/.ssh/id_rsa.pub') }}"
+
     - name: Install packages
       apt:
         name:
           - htop
           - bmon
           - lldpd
+          - tcpdump
+          - mtr-tiny
         state: present
         cache_valid_time: 30
-    - name: Download FRR GPG-key
-      get_url:
-        url: https://deb.frrouting.org/frr/keys.gpg
-        dest: /usr/share/keyrings/frrouting.gpg
-      tags:
-        - frr
-        - frr_install
-    - name: Configure apt repo for FRR
-      apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/frrouting.gpg] https://deb.frrouting.org/frr {{ ansible_distribution_release }} frr-{{ frr_version }}"
+      when: ansible_facts["os_family"] == "Debian"
+
+    - name: Set SELinux permissive
+      ansible.posix.selinux:
+        policy: "targeted"
+        state: "permissive"
+      when: ansible_facts["os_family"] == "RedHat"
+
+    - name: Install epel-release
+      dnf:
+        name: epel-release
         state: present
-        filename: frr
-      tags:
-        - frr
-        - frr_install
-    - name: Install frr
-      apt:
+      when: ansible_facts["os_family"] == "RedHat"
+
+    - name: Install packages
+      dnf:
         name:
-          - frr
-          - frr-pythontools
-      tags:
-        - frr
-        - frr_install
+          - htop
+          - bmon
+          - lldpd
+          - tcpdump
+          - mtr
+        state: present
+        update_cache: True
+      when: ansible_facts["os_family"] == "RedHat"
+
+    - name: Configure nmcli interfaces
+      community.general.nmcli:
+        type: ethernet
+        conn_name: "{{ item }}"
+        method6: link-local
+        method4: link-local
+        state: present
+      loop:
+        - "Wired connection 1"
+        - "Wired connection 2"
+      when: ansible_facts["os_family"] == "RedHat"
+      register: nmcli
+
+    - name: Down nmcli interfaces
+      community.general.nmcli:
+        type: ethernet
+        conn_name: "{{ item }}"
+        state: down
+      loop:
+        - "Wired connection 1"
+        - "Wired connection 2"
+      when: nmcli.changed
+
+    - name: Up nmcli interfaces
+      community.general.nmcli:
+        type: ethernet
+        conn_name: "{{ item }}"
+        state: up
+      loop:
+        - "Wired connection 1"
+        - "Wired connection 2"
+      when: nmcli.changed
+
+  roles:
+    - frr

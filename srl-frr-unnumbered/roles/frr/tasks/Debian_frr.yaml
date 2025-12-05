@@ -1,0 +1,17 @@
+---
+- name: Download FRR GPG-key
+  get_url:
+    url: https://deb.frrouting.org/frr/keys.gpg
+    dest: /usr/share/keyrings/frrouting.gpg
+
+- name: Configure apt repo for FRR
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/frrouting.gpg] https://deb.frrouting.org/frr {{ ansible_distribution_release }} frr-{{ frr_version }}"
+    state: present
+    filename: frr
+
+- name: Install frr
+  apt:
+    name:
+      - frr
+      - frr-pythontools

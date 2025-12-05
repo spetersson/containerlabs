@@ -1,0 +1,12 @@
+---
+- name: reload frr
+  service:
+    name: frr
+    state: reloaded
+    enabled: true
+
+- name: restart frr
+  service:
+    name: frr
+    state: restarted
+    enabled: true

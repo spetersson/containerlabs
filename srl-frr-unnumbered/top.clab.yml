@@ -28,16 +28,24 @@ topology:
       startup-config: network_config/spine12.cli
     dns1:
       kind: generic_vm
-      image: vrnetlab/canonical_ubuntu:jammy
+      image: vrnetlab/rocky_rocky:9
+      env:
+        QEMU_MEMORY: 2048
     dns2:
       kind: generic_vm
-      image: vrnetlab/canonical_ubuntu:jammy
+      image: vrnetlab/rocky_rocky:9
+      env:
+        QEMU_MEMORY: 2048
     http1:
       kind: generic_vm
-      image: vrnetlab/canonical_ubuntu:jammy
+      image: vrnetlab/rocky_rocky:9
+      env:
+        QEMU_MEMORY: 2048
     http2:
       kind: generic_vm
-      image: vrnetlab/canonical_ubuntu:jammy
+      image: vrnetlab/rocky_rocky:9
+      env:
+        QEMU_MEMORY: 2048
   links:
     # Leaf 11
     - endpoints: ["leaf11:ethernet-1/1", "spine11:ethernet-1/1"]
