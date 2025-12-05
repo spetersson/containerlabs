@@ -1,0 +1,6 @@
+---
+- name: Include frr tasks
+  ansible.builtin.include_tasks: "{{ ansible_os_family }}_frr.yaml"
+
+- name: Include frr configuration tasks
+  ansible.builtin.include_tasks: "configure.yaml"

@@ -1,0 +1,17 @@
+---
+name: frr-frr-unnumbered
+topology:
+  nodes:
+    ce-frr-1:
+      kind: generic_vm
+      image: vrnetlab/rocky_rocky:9
+      env:
+        QEMU_MEMORY: 2048
+    ce-frr-2:
+      kind: generic_vm
+      image: vrnetlab/rocky_rocky:9
+      env:
+        QEMU_MEMORY: 2048
+  links:
+    # ce-frr-1 <---> ce-frr-2
+    - endpoints: ["ce-frr-1:eth1", "ce-frr-2:eth1"]

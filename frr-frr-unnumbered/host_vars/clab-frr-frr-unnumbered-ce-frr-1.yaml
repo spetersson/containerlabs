@@ -1,0 +1,8 @@
+---
+system_asn: 4200000201
+system_loopback_ipv4: 10.1.2.1/32
+system_loopback_ipv6: 2001:db8::1/128
+frr_system_uplinks:
+  - eth1
+nm_connection_uplinks:
+  - "Wired connection 1"

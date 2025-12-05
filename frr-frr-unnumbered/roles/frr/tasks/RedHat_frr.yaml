@@ -1,0 +1,27 @@
+---
+- name: Set fact frr_package_name
+  set_fact:
+    frr_package_name: >-
+      {% if frr_version is defined %}
+      frr-{{ frr_version }}
+      {% else %}
+      frr
+      {% endif %}
+- name: Import FRR GPG key
+  rpm_key:
+    key: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x7ab8ac624cba356cb6216d48f66b5a9140673a87"
+    fingerprint:
+      - 7AB8 AC62 4CBA 356C B621 6D48 F66B 5A91 4067 3A87
+    state: present
+- name: Install FRR repo
+  dnf:
+    name: "https://rpm.frrouting.org/repo/frr-{{ frr_branch }}-repo.el9.noarch.rpm"
+    state: present
+
+- name: Install FRR
+  dnf:
+    name:
+      - "{{ frr_package_name }}"
+      - frr-pythontools
+    state: present
+

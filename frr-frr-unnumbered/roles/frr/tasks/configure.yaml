@@ -1,0 +1,61 @@
+---
+- name: Check if vtysh binary exists
+  command: which vtysh
+  register: vtysh_exists
+  ignore_errors: true
+  check_mode: false
+  changed_when: false
+- name: Check mode block for FRR
+  block:
+    - name: Create temp conf dir
+      file:
+        path: /etc/_tmp_frr
+        owner: frr
+        group: frr
+        mode: 0750
+        state: directory
+    - name: generate /etc/_tmp_frr/daemons
+      template:
+        src: daemons.j2
+        dest: /etc/_tmp_frr/daemons
+        owner: frr
+        group: frr
+        mode: 0640
+    - name: generate /etc/_tmp_frr/frr.conf
+      template:
+        src: frr.conf.j2
+        dest: /etc/_tmp_frr/frr.conf
+        owner: frr
+        group: frr
+        mode: 0640
+    - name: generate /etc/_tmp_frr/vtysh.conf
+      template:
+        src: vtysh.conf.j2
+        dest: /etc/_tmp_frr/vtysh.conf
+        owner: frr
+        group: frr
+        mode: 0640
+    - name: check frr configuration
+      shell: /usr/bin/vtysh -C --config_dir /etc/_tmp_frr
+      changed_when: false
+  when: vtysh_exists.rc == 0
+  check_mode: false
+
+- name: configure /etc/frr/daemons
+  template:
+    src: daemons.j2
+    dest: /etc/frr/daemons
+    owner: frr
+    group: frr
+    mode: 0640
+  notify:
+    - restart frr
+- name: configure /etc/frr/frr.conf
+  template:
+    src: frr.conf.j2
+    dest: /etc/frr/frr.conf
+    owner: frr
+    group: frr
+    mode: 0640
+  notify:
+    - reload frr

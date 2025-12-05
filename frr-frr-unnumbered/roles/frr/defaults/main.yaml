@@ -1,0 +1,11 @@
+frr_hostname: "{{ inventory_hostname_short }}"
+frr_log_syslog: True
+frr_zebra_nexthop_kernel_enable: False
+frr_system_asn: "{{ system_asn }}"
+frr_system_loopback_ipv4: "{{ system_loopback_ipv4 }}"
+frr_system_loopback_ipv6: "{{ system_loopback_ipv6 }}"
+frr_system_uplinks:
+  - ens2
+  - ens3
+frr_bgpd_enable: True
+frr_bfdd_enable: True
