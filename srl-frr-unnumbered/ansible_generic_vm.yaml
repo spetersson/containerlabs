@@ -57,8 +57,10 @@
       community.general.nmcli:
         type: ethernet
         conn_name: "{{ item }}"
+        addr_gen_mode6: "eui64"
         method6: link-local
         method4: link-local
+        mtu: 9500
         state: present
       loop: "{{ nm_connection_uplinks }}"
       when: ansible_facts["os_family"] == "RedHat"
