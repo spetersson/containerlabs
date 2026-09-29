@@ -1,0 +1,36 @@
+apiVersion: tinkerbell.org/v1alpha1
+kind: Hardware
+metadata:
+  name: vmm1
+  namespace: default
+spec:
+  disks:
+    - device: /dev/sda
+  metadata:
+    instance:
+      id: "6c:4b:90:ad:ca:e4"
+      hostname: vmm1
+  interfaces:
+    - dhcp:
+        mac: "6c:4b:90:ad:ca:e4"
+        hostname: node1
+        arch: x86_64
+        uefi: true            # false if it PXE-boots in legacy BIOS mode
+        lease_time: 86400
+        name_servers:
+          - 86.54.11.1
+        ip:
+          address: 192.168.2.50
+          netmask: 255.255.255.0
+          gateway: 192.168.2.1
+      netboot:
+        allowPXE: true
+        allowWorkflow: true
+  userData: |
+    #cloud-config
+    users:
+      - name: tink
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        shell: /bin/bash
+        ssh_authorized_keys:
+          - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEueMybc5lGBDlfK/qk8Xzecm75FDLCNWizHiOQWqJMH sp@trash

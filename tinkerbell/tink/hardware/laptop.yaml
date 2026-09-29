@@ -1,0 +1,14 @@
+apiVersion: tinkerbell.org/v1alpha1
+kind: Hardware
+metadata: {name: laptop, namespace: default}
+spec:
+  interfaces:
+    - dhcp:
+        mac: "74:5d:22:c9:9f:a3"
+        hostname: laptop
+        arch: x86_64
+        uefi: true
+        ip: {address: 192.168.2.51, netmask: 255.255.255.0, gateway: 192.168.2.1}
+        name_servers:
+          - 86.54.11.1
+      netboot: {allowPXE: true, allowWorkflow: true}

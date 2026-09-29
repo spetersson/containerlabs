@@ -1,0 +1,64 @@
+services:
+  etcd:
+    image: registry.k8s.io/etcd:3.5.21-0
+    command: [etcd, --advertise-client-urls=http://0.0.0.0:2379,
+              --listen-client-urls=http://0.0.0.0:2379, --data-dir=/data/tinkerbell.etcd]
+    volumes: [etcd:/data]
+
+  kubeconfig:            # one-shot: generates certs + kubeconfigs
+    image: bitnami/kubectl:latest
+    user: root
+    entrypoint: /bin/bash
+    command: -c '/certs.sh -d /certs -i kube-apiserver && cp -a /certs/kubeconfig.localhost /out/kubeconfig'
+    volumes: [certs:/certs, ./script/certs.sh:/certs.sh, ./out:/out]
+
+  kube-apiserver:
+    image: registry.k8s.io/kube-apiserver:v1.34.3
+    working_dir: /certs
+    command: [kube-apiserver, --etcd-servers=http://etcd:2379,
+              --service-account-key-file=service-account-key.pem,
+              --service-account-signing-key-file=service-account-key.pem,
+              --service-account-issuer=api, --tls-cert-file=server.crt,
+              --tls-private-key-file=server.key, --client-ca-file=ca.crt]
+    ports: ["6443:6443"]
+    volumes: [certs:/certs]
+    depends_on:
+      etcd: {condition: service_started}
+
+  kube-controller-manager:
+    image: registry.k8s.io/kube-controller-manager:v1.34.3
+    command:
+      - kube-controller-manager
+      - --kubeconfig=/certs/kubeconfig
+      - --controllers=namespace-controller,garbage-collector-controller
+    volumes: [certs:/certs]
+    depends_on:
+      - kube-apiserver
+
+  hookos:                # serves HookOS kernel/initramfs over HTTP
+    image: nginx:alpine
+    ports: ["8787:80"]
+    volumes: [./hookos:/usr/share/nginx/html:ro]
+
+  tinkerbell:
+    image: ghcr.io/tinkerbell/tinkerbell:v0.25.0   # or keep `build:` from upstream
+    network_mode: host                             # lets Smee see DHCP broadcasts
+    restart: on-failure
+    environment:
+      TINKERBELL_BACKEND_KUBE_CONFIG: /certs/kubeconfig.localhost
+      TINKERBELL_ENABLE_EMBEDDED_ETCD: "false"
+      TINKERBELL_ENABLE_EMBEDDED_KUBE_APISERVER: "false"
+      TINKERBELL_PUBLIC_IPV4: 192.168.2.10
+      TINKERBELL_IPXE_HTTP_SCRIPT_OSIE_URL: http://192.168.2.10:8787
+      TINKERBELL_IPXE_HTTP_SCRIPT_EXTRA_KERNEL_ARGS: tink_worker_image=ghcr.io/tinkerbell/tink-agent:v0.25.0
+      # Smee (enabled by default). Pick a DHCP mode, see below:
+      TINKERBELL_DHCP_MODE: reservation
+      TINKERBELL_SYSLOG_ENABLED: "true"
+      #TINKERBELL_TINK_SERVER_AUTO_DISCOVERY_ENABLED: "true"
+    volumes: [certs:/certs]
+    depends_on:
+      kube-apiserver: {condition: service_started}
+
+volumes:
+  certs:
+  etcd:
